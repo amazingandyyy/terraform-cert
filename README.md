@@ -4,6 +4,15 @@
 
 IAS is a provisioners, which can use configuration management tool such as Ansible.
 
+## Basic
+
+```sh
+instance.tf
+variable.tf
+terraform.tfvars // ignored
+modules/
+```
+
 ### Commands
 
 ```shell
@@ -18,6 +27,7 @@ terraform console // try out functions
 terraform fmt // format
 terraform validate
 terraform taint // destroy that item and recreate it again
+terraform workspace show|list|select
 ```
 
 ## Variables
@@ -126,3 +136,27 @@ resource "aws_instance" "web" {
 - using variable and default value to make modules' value overridable, otherwise cannot be overwritten at all
 - terragorm registry
   - modules written by community
+  - `module` [e.g](https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/2.33.0)
+
+## Workspace
+
+- lookup
+```sh
+
+resource "aws_instance" "myec2" {
+   ami = "ami-082b5a644766e0e6f"
+   instance_type = lookup(var.instance_type,terraform.workspace)
+}
+
+variable "instance_type" {
+  type = "map"
+
+  default = {
+    default = "t2.nano"
+    dev     = "t2.micro"
+    prd     = "t2.large"
+  }
+}
+```
+- the .fstate will be created into `terraform.tfstate.d`
+
