@@ -1,4 +1,4 @@
 *.csv
 .terraform
 .DS_Store
-lab/
+*.tfvars
