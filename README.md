@@ -9,6 +9,9 @@ IAS is a provisioners, which can use configuration management tool such as Ansib
 ```sh
 instance.tf
 variable.tf
+provider.tf
+backend.tf // https://www.terraform.io/docs/backends/types/remote.html
+main.tf
 terraform.tfvars // ignored
 modules/
 ```
@@ -28,8 +31,10 @@ terraform fmt // format
 terraform validate
 terraform taint // destroy that item and recreate it again
 terraform workspace show|list|select
+terraform state list|mv|pull|push|rm(remove tracking, but the instance are still running)
+terraform import aws_instance.myec2 i-24fdsf34f24(instance id)
 ```
-
+  
 ## Variables
 
 - create variables with variables.tf file or do either following to override
@@ -38,6 +43,7 @@ terraform workspace show|list|select
   - use `custommmm.tfvars` and `-var-file='custommmm.tfvars` flag
   - use `export TF_VAR_instance_type="m5.large"` enviroment variable
 - you can define variables types, types can be string, list, map, number
+
 ```sh
 variable "access_key" {
   type = number
@@ -59,6 +65,7 @@ variable "access_key" {
   - max(), element(), lookup(), file("${path.module}"), formatdate("DD MMMM YYYY hh:mm:ss ZZZ", timestamp())
 
 - data source: data block, fetch data from owner
+
 ```sh
 data "aws_ami" "app_ami" {
   most_recent = true
@@ -74,6 +81,7 @@ data "aws_ami" "app_ami" {
 - debugging: set TF_LOG to either TRACE(default), DEBUG, INFO, WARN, or ERROR
   - can also set TF_LOG_PATH to /tmp/terraform-crash.log
 - dynamic block, iterator is optional alternative name
+
 ```sh
 variable "sg_ports" {
   type        = list(number)
@@ -113,6 +121,7 @@ resource "aws_security_group" "dynamicsg" {
 - to execute scripts on a machine
   - local-exec // run on the machine whichever run the terraform apply command
   - remote-exec // run on the created remote machine
+
 ```sh
 resource "aws_instance" "web" {
   # ...
@@ -125,6 +134,7 @@ resource "aws_instance" "web" {
   }
 }
 ```
+
 - [connection](https://www.terraform.io/docs/provisioners/connection.html)
   - using self.public_ip
 - use case
@@ -141,6 +151,7 @@ resource "aws_instance" "web" {
 ## Workspace
 
 - lookup
+
 ```sh
 
 resource "aws_instance" "myec2" {
@@ -158,5 +169,20 @@ variable "instance_type" {
   }
 }
 ```
-- the .fstate will be created into `terraform.tfstate.d`
 
+- the .fstate will be created into `terraform.tfstate.d`
+- use file to pass password and that file is ignored by git
+- backend, use s3 to save tfstate file
+- locking state
+  - enable s3 locking with dynamodb_table and with LockID as primary key
+- import
+- aws provider will default to find .aws/credentials
+  - or when it sees .aws folder, it default to use aws as provider
+- multiple providers: use alias in provider and point to provider by alias name
+- sensite: true
+- terraform cloud
+  - team collaboration on apply/destroy
+  - a CI to run terraform commands
+  - serverless solution when connecting with one github repository
+- [sentinel](https://docs.hashicorp.com/sentinel/terraform/) (policy check)
+- remote backend, local command will execute on the terraform cloud, and the cloud will streaming output to local machine
