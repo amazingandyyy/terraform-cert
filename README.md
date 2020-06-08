@@ -1,4 +1,6 @@
-# Certified Terraform
+# Certified Terraform Associate
+
+Prepare for [Certified Terraform Associate Certification](https://www.hashicorp.com/certification/terraform-associate/)
 
 ## Configuration management vs Infrastrucure as code(IAC)
 
